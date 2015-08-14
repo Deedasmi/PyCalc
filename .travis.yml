@@ -1,0 +1,13 @@
+language: python
+python:
+  - "3.4"
+# command to install dependencies
+install: "pip install ."
+# command to run tests
+script: python -m unittest discover
+notifications:
+  email: false
+  irc:
+    channels: irc.system33.pw#lobby
+    template:
+      - "%{repository} #%{build_number} (%{branch} - %{commit} : %{author}) %{commit_message}: %{message}"
