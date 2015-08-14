@@ -1,5 +1,5 @@
 __author__ = 'Deedasmi'
-from calculator import calc
+from pycalc import calc
 
 def main():
     '''

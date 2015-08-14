@@ -1,7 +1,7 @@
 __author__ = 'Deedasmi'
 import unittest
 
-from calculator import calc
+from pycalc import calc
 
 
 class TestCalcMethods(unittest.TestCase):
