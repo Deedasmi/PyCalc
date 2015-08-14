@@ -15,45 +15,37 @@ class TestCalcMethods(unittest.TestCase):
         self.assertEqual(calc.calculate("(2*.5)^3"), 1)
         #calc.handle_user_defined_input("Matt = 20")
         #self.assertAlmostEqual(calc.calculate("Matt * pi"), 62.8318, 3)
-        
-    @unittest.skipIf(calc.__version__ < 0.7, "Negative numbers")
+
     def testNegative(self):
         self.assertEqual(calc.calculate("(-4) + 2"), -2)
         self.assertEqual(calc.calculate("(4 * 2 + 4)  * -2"), -24)
-        
-    @unittest.skipIf(calc.__version__ < 0.7, "AlphaNumeric bug")
+
     def testIssue12(self):
         with self.assertRaises(SyntaxWarning):
             calc.handle_user_defined_input("bob = 4")
             calc.calculate("bob2 + 4")
 
-    @unittest.skipIf(calc.__version__ < 0.67, "Fixes not yet implemented in v0.65")
-    def test_moreFixes(self):
+    def test_symbolErrors(self):
         with self.assertRaises(SyntaxWarning):
             calc.calculate("2 + (%)")
             calc.calculate("2 + 2)")
             calc.calculate("2 + () + 5")
             calc.calculate("2 + ((%) +2)")
-            
 
-    @unittest.skipIf(calc.__version__ < 0.67, "Features not yet implemented in v0.65")
-    def test_moreFixes(self):
+
+    def test_SavedAndSymbolReplace(self):
         calc.saved = 5
         self.assertEqual(calc.calculate("+2"), 7)
         self.assertEqual(calc.calculate("2 { 6 / 2 [ 5 ] }"), 30)
 
 
-
-    @unittest.skipIf(calc.__version__ < 0.65, "Fixes not yet implemented in v.5")
-    def test_futureFixes(self):
+    def test_OperatorErrors(self):
         with self.assertRaises(SyntaxWarning):
             calc.calculate("2 + * 4")
             calc.calculate("2 ! 4")
             calc.handle_user_defined_input("matt = 4 = 5")
 
-
-    @unittest.skipIf(calc.__version__ < 0.6, "Features not implemented in v0.5")
-    def test_futureFeatures(self):
+    def test_Modulo(self):
         self.assertEqual(calc.calculate("2 % 2"), 0)
         self.assertEqual(calc.calculate("2 * 2 % 2"), 0)
         self.assertEqual(calc.calculate("(2 + 3) % 2 / 5"), 0.2)
