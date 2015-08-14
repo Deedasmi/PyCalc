@@ -10,6 +10,7 @@ Example:
 git clone https://github.com/Deedasmi/PyCalc.git
 python setup.py install
 # or pip install .
+```
 
 ## Usage
 
