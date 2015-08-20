@@ -13,46 +13,47 @@ ALLOWED_SYMBOLS = {"+", "-", "*", "/", "^", "%", "(", ")", "."}
 saved = None
 
 
-def get_udf(eq):
+def get_udf(equation):
     """
     Get user defined function
-    :param eq: The string to handle
+    :param equation: The string to handle
     :return: String to be sent through equation_to_list
     """
-    temp = eq.split("(")
+    temp = equation.split("(")
     func = temp[0]
     all_vars = temp[1][:-1]
     func_vars = all_vars.split(",")
-    eq = udf[func][1]
+    equation = udf[func][1]
     if len(func_vars) != len(udf[func][0]):
         raise SyntaxWarning("{} variables defined, but {} supplied."
                             .format(str(len(udf[func][0])), str(len(func_vars))))
     for i in range(0, len(udf[func][0])):
-        eq = eq.replace(udf[func][0][i], func_vars[i])
-    return eq
+        equation = equation.replace(udf[func][0][i], func_vars[i])
+    return equation
 
 
-def handle_user_defined_input(eq, function=False):
+def handle_user_defined_input(equation, function=False):
     """
     Handles all user defined variables
-    :param eq: Equation to print
+    :param equation: Equation to print
     :return: On success returns a string to be printed
     """
-    eq = eq.replace(" ", "")
-    if eq.count("=") > 1:
+    equation = equation.replace(" ", "")
+    if equation.count("=") > 1:
         raise SyntaxWarning("Unknown operation (too many '=')")
-    eq = eq.split("=")
-    key = eq[0]
-    value = eq[1]
+    equation = equation.split("=")
+    key = equation[0]
+    value = equation[1]
 
     # Working with User Define Function
     # TODO replace with function variable
     if "(" in key:
         if key.count("(") != 1 or key.count(")") != 1:
-            raise SyntaxWarning("Non matching parenthesis in function declaration or too many parenthesis")
+            raise SyntaxWarning("Non matching parenthesis in function declaration"
+                                " or too many parenthesis")
         func_vars = key[key.index("(") + 1:key.index(")")].split(",")
-        for f in func_vars:
-            if not f.isalpha():
+        for var in func_vars:
+            if not var.isalpha():
                 raise UserWarning("All variables must be alpha")
         key = key[0:key.index("(")]
         if not key.isalpha():
@@ -73,49 +74,49 @@ def handle_user_defined_input(eq, function=False):
             raise UserWarning("Key must be alpha")
         # Delete UDFs with the same name
         if key in udf:
-                del udf[key]
+            del udf[key]
         udv[key] = value
         udv["-" + key] = float(value) * -1  # allows negative UDV
     return '{} added with value {}'.format(key, value)
 
 
-def equation_to_list(eq):
+def equation_to_list(equation):
     """
     Splits the equation out into a list
-    :param eq: The equation to split
+    :param equation: The equation to split
     :return: Returns a validated list
     """
     # Replace alternate characters
-    eq = eq.replace("\\", "/")
-    eq = eq.replace("[", "(")
-    eq = eq.replace("{", "(")
-    eq = eq.replace("]", ")")
-    eq = eq.replace("}", ")")
+    equation = equation.replace("\\", "/")
+    equation = equation.replace("[", "(")
+    equation = equation.replace("{", "(")
+    equation = equation.replace("]", ")")
+    equation = equation.replace("}", ")")
     # split eq into numbers and special characters
-    equation = ['']
+    equation_list = ['']
     # iterate for each char in eq
-    for c in eq:
+    for character in equation:
         # if char is a digit, either append it onto the last item (a number)
         # or append it onto the list. Do the same check with alpha
-        if c.isdigit() or c is ".":
-            if not equation[-1].isnumeric() and equation[-1] is not ".":
-                equation.append(c)
+        if character.isdigit() or character is ".":
+            if not equation_list[-1].isnumeric() and equation_list[-1] is not ".":
+                equation_list.append(character)
             else:
-                equation[-1] += c
-        elif c.isalpha():
-            if not equation[-1].isalpha():
-                equation.append(c)
+                equation_list[-1] += character
+        elif character.isalpha():
+            if not equation_list[-1].isalpha():
+                equation_list.append(character)
             else:
-                equation[-1] += c
+                equation_list[-1] += character
         # if char is special character, just add to list
         else:
-            if c not in ALLOWED_SYMBOLS:
-                raise UserWarning("Unknown symbol '{}'".format(c))
-            equation.append(c)
+            if character not in ALLOWED_SYMBOLS:
+                raise UserWarning("Unknown symbol '{}'".format(character))
+            equation_list.append(character)
     # remove empty strings, Nones (and any other False-y things)
     # equation = [x for x in equation if x]
-    del equation[0]
-    return validate_and_format_list(equation)
+    del equation_list[0]
+    return validate_and_format_list(equation_list)
 
 
 def validate_and_format_list(equation):
@@ -194,107 +195,107 @@ def validate_and_format_list(equation):
     return equation
 
 
-def do_math(eq):
+def do_math(equation):
     """
     Recursively solve equation
-    :param eq: The equation to solve
+    :param equation: The equation to solve
     :return: Float - the solved number
     """
-    while "(" in eq:
+    while "(" in equation:
         # Please
         # Pops out from first ( to matching ) and recursively solves the sub equation
-        left_paren = eq.index("(")
-        right_paren = find_matching_parenthesis(left_paren, eq)
+        left_paren = equation.index("(")
+        right_paren = find_matching_parenthesis(left_paren, equation)
         sub_equation = []
         for i in range(left_paren, right_paren + 1):  # Second value of range non-inclusive
-            sub_equation.append(eq.pop(left_paren))
-        del(sub_equation[0])  # removed left parenthesis from sub_equation
-        del(sub_equation[len(sub_equation) - 1])  # and removed the right
-        eq.insert(left_paren, do_math(sub_equation))  # recursively calls to handle nested parenthesis
-    else:
-        while len(eq) > 1:
-            i = 0
-            # Excuse
-            if "^" in eq:
-                i = eq.index("^")
-            # My Dear
-            elif "*" in eq or "/" in eq or "%" in eq:
-                i = min(mdm_what_to_min(eq))
-            # Aunt Sally
-            elif "+" in eq and "-" in eq:
-                i = min(eq.index("+"), eq.index("-"))
-            elif "+" in eq:
-                i = eq.index("+")
-            elif "-" in eq:
-                i = eq.index("-")
+            sub_equation.append(equation.pop(left_paren))
+        del sub_equation[0]  # removed left parenthesis from sub_equation
+        del sub_equation[len(sub_equation) - 1]  # and removed the right
+        equation.insert(left_paren, do_math(sub_equation))  # recursively calls to handle nested parenthesis
 
-            # Math time
-            i -= 1  # makes popping simple
-            n1 = eq.pop(i)
-            o = eq.pop(i)
-            n2 = eq.pop(i)
-            eq.insert(i, do_simple_math(n1, n2, o))
-        global saved
-        saved = eq[0]
-        return saved
+    while len(equation) > 1:
+        i = 0
+        # Excuse
+        if "^" in equation:
+            i = equation.index("^")
+        # My Dear
+        elif "*" in equation or "/" in equation or "%" in equation:
+            i = min(mdm_what_to_min(equation))
+        # Aunt Sally
+        elif "+" in equation and "-" in equation:
+            i = min(equation.index("+"), equation.index("-"))
+        elif "+" in equation:
+            i = equation.index("+")
+        elif "-" in equation:
+            i = equation.index("-")
+
+        # Math time
+        i -= 1  # makes popping simple
+        number1 = equation.pop(i)
+        operator = equation.pop(i)
+        number2 = equation.pop(i)
+        equation.insert(i, do_simple_math(number1, number2, operator))
+    global saved
+    saved = equation[0]
+    return saved
 
 
-def mdm_what_to_min(eq):
+def mdm_what_to_min(equation):
     """
     Creates a list of indexes of * / %
-    :param eq: The equation to work with
+    :param equation: The equation to work with
     :return: List to min()
     """
     to_min = []
-    if "*" in eq:
-        to_min.append(eq.index("*"))
-    if "/" in eq:
-        to_min.append(eq.index("/"))
-    if "%" in eq:
-        to_min.append(eq.index("%"))
+    if "*" in equation:
+        to_min.append(equation.index("*"))
+    if "/" in equation:
+        to_min.append(equation.index("/"))
+    if "%" in equation:
+        to_min.append(equation.index("%"))
     return to_min
 
 
-def find_matching_parenthesis(left, eq):
+def find_matching_parenthesis(left, equation):
     """
     Ghetto function to find ) that matches (
     When p = 0 after finding a ), it should be the matching paren
     :param left: The parenthesis to match
-    :param eq: The equation to match it in
+    :param equation: The equation to match it in
     :return: int. Index of right paren
     """
-    p = 1
-    for i in range(left + 1, len(eq)):  # skip leftmost parenthesis
-        if eq[i] == "(":
-            p += 1
-        elif eq[i] == ")":
-            p -= 1
-            if p == 0:
+    nested_parenthesis = 0
+    for i in range(left, len(equation)):  # skip leftmost parenthesis
+        if equation[i] == "(":
+            nested_parenthesis += 1
+        elif equation[i] == ")":
+            nested_parenthesis -= 1
+            if nested_parenthesis == 0:
                 return i
     raise SyntaxWarning("No matching parenthesis found")  # should never happen because handling in equation_to_list
 
 
-def do_simple_math(n1, n2, o):
+def do_simple_math(number1, number2, operator):
     """
     Does simple math between two numbers and an operator
-    :param n1: The first number
-    :param n2: The second number
-    :param o: The operator (string)
+    :param number1: The first number
+    :param number2: The second number
+    :param operator: The operator (string)
     :return: Float
     """
     ans = 0
-    if o is "*":
-        ans = n1 * n2
-    elif o is "/":
-        ans = n1 / n2
-    elif o is "+":
-        ans = n1 + n2
-    elif o is "-":
-        ans = n1 - n2
-    elif o is "^":
-        ans = n1 ** n2
-    elif o is "%":
-        ans = n1 % n2
+    if operator is "*":
+        ans = number1 * number2
+    elif operator is "/":
+        ans = number1 / number2
+    elif operator is "+":
+        ans = number1 + number2
+    elif operator is "-":
+        ans = number1 - number2
+    elif operator is "^":
+        ans = number1 ** number2
+    elif operator is "%":
+        ans = number1 % number2
     return ans
 
 
@@ -312,14 +313,14 @@ def calculate(*args):
 
     if isinstance(args[0], str) and len(args) == 1:
         # remove white space
-        eq = args[0].replace(" ", "")
+        equation = args[0].replace(" ", "")
         # Check if function
-        if eq[0].isalpha():  # Check this first because re.match is slow
+        if equation[0].isalpha():  # Check this first because re.match is slow
             # TODO support inline function calls (i.e: 2 + test(2, 5) / 5)
-            if re.match("(^[a-zA-z]*)\(([\d\,]*)\)$", eq):
-                eq = get_udf(eq)
-        eq = equation_to_list(eq)
-        return do_math(eq)
+            if re.match(r"(^[a-zA-z]*)\(([\d\,]*)\)$", equation):
+                equation = get_udf(equation)
+        equation = equation_to_list(equation)
+        return do_math(equation)
     if len(args) == 3:
         return do_simple_math(args[0], args[1], args[2])
     raise TypeError("Function handles single strings, or group of 3 arguments (n1, n2, o)")

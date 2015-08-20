@@ -1,5 +1,9 @@
+'''
+Simple input/output for PyCalc
+'''
 __author__ = 'Deedasmi'
 from pycalc import calc
+
 
 def main():
     '''
@@ -9,11 +13,11 @@ def main():
     while True:
         print("Please input an equation")
         try:
-            eq = take_input()
-            if eq: #If returned an equation
-                print_ans(calc.calculate(eq))
-        except(UserWarning, SyntaxWarning) as e:
-            print(e)
+            equation = take_input()
+            if equation: #If returned an equation
+                print_ans(calc.calculate(equation))
+        except(UserWarning, SyntaxWarning) as error:
+            print(error)
         except ZeroDivisionError:
             print("Cannot divide by Zero, numbnuts")
         except KeyboardInterrupt:
@@ -25,15 +29,15 @@ def take_input():
     Grabs user input split into a list
     :return: List if ready for math or None to skip math
     '''
-    eq = ""
-    while not eq.strip():
-        eq = input()
-    if eq.lower() == "done":
+    equation = ""
+    while not equation.strip():
+        equation = input()
+    if equation.lower() == "done":
         exit(0)
-    elif "=" in eq: #Handle User defined variables (and possibly functions) separately
-        print(calc.handle_user_defined_input(eq))
+    elif "=" in equation: #Handle User defined variables (and possibly functions) separately
+        print(calc.handle_user_defined_input(equation))
         return None
-    return eq
+    return equation
 
 
 def print_ans(ans):
