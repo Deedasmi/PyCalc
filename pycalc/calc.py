@@ -21,11 +21,12 @@ def get_udf(eq):
     """
     temp = eq.split("(")
     func = temp[0]
-    vars = temp[1][:-1]
-    func_vars = vars.split(",")
+    all_vars = temp[1][:-1]
+    func_vars = all_vars.split(",")
     eq = udf[func][1]
     if len(func_vars) != len(udf[func][0]):
-        raise SyntaxWarning("{} variables defined, but {} supplied.".format(str(len(udf[func][0])), str(len(func_vars))))
+        raise SyntaxWarning("{} variables defined, but {} supplied."
+                            .format(str(len(udf[func][0])), str(len(func_vars))))
     for i in range(0, len(udf[func][0])):
         eq = eq.replace(udf[func][0][i], func_vars[i])
     return eq
@@ -127,7 +128,7 @@ def validate_and_format_list(equation):
     i = 0
     neg = False
     if equation.count("(") != equation.count(")"):
-        raise SyntaxWarning("Non-matching parenthesis. {} '(' found and {} ')' found"\
+        raise SyntaxWarning("Non-matching parenthesis. {} '(' found and {} ')' found"
                             .format(str(equation.count("(")), str(equation.count(")"))))
     # Loop through list
     # TODO save to new equation so we aren't modifying the duration of loop during loop. I know I'm bad
