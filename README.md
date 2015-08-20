@@ -1,5 +1,6 @@
 # PyCalc
 [![Build Status](https://travis-ci.org/Deedasmi/PyCalc.svg)](https://travis-ci.org/Deedasmi/PyCalc)
+
 A command line calculator written in Python.
 
 ## Installation
